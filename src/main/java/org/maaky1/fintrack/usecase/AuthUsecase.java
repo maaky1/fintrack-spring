@@ -11,9 +11,11 @@ import org.maaky1.fintrack.dto.response.RsLogin;
 import org.maaky1.fintrack.dto.response.RsRegister;
 import org.maaky1.fintrack.entity.RefreshTokenEntity;
 import org.maaky1.fintrack.entity.UserEntity;
+import org.maaky1.fintrack.exception.AppException;
 import org.maaky1.fintrack.service.RefreshTokenService;
 import org.maaky1.fintrack.service.UserService;
 import org.maaky1.fintrack.util.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,29 +33,30 @@ public class AuthUsecase {
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
 
-    public ResponseInfo<RsRegister> registerAccount(RequestInfo<RqRegister> request) {
-        ResponseInfo<RsRegister> response = new ResponseInfo<RsRegister>()
-                .setCode("00")
-                .setStatus("Success");
+    private static final String registerFuncCode = "11";
 
+    public ResponseInfo<RsRegister> registerAccount(RequestInfo<RqRegister> request) {
         RqRegister rqRegister = request.getBody();
         if (rqRegister.getName() == null || rqRegister.getName().isBlank())
-            return response.setCode("01").setStatus("Failed").setMessage("Name is required");
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(registerFuncCode, "01"), "Name is required");
         if (rqRegister.getUsername() == null || rqRegister.getUsername().isBlank())
-            return response.setCode("02").setStatus("Failed").setMessage("Username is required");
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(registerFuncCode, "02"),
+                    "Username is required");
         if (rqRegister.getEmail() == null || rqRegister.getEmail().isBlank())
-            return response.setCode("03").setStatus("Failed").setMessage("Email is required");
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(registerFuncCode, "03"), "Email is required");
         if (rqRegister.getPassword() == null || !rqRegister.getPassword().matches("^[a-zA-Z0-9]{6,}$"))
-            return response.setCode("04").setStatus("Failed")
-                    .setMessage("Password min 6 characters and must be alphanumeric");
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(registerFuncCode, "04"),
+                    "Password min 6 characters and must be alphanumeric");
 
         boolean availUsername = userService.checkAvailUsername(rqRegister.getUsername());
         if (!availUsername)
-            return response.setCode("05").setStatus("Failed").setMessage("Username is already registered");
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(registerFuncCode, "05"),
+                    "Username is already registered");
 
         boolean checkAvailEmail = userService.checkAvailEmail(rqRegister.getEmail());
         if (!checkAvailEmail)
-            return response.setCode("05").setStatus("Failed").setMessage("Email is already registered");
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(registerFuncCode, "05"),
+                    "Email is already registered");
 
         String UID = UlidCreator.getMonotonicUlid().toString();
         UserEntity userEntity = new UserEntity()
@@ -68,14 +71,14 @@ public class AuthUsecase {
                 .setUserId(saveUser.getUserId())
                 .setUsername(saveUser.getUsername());
 
-        return response.setMessage("Register Success").setData(rsRegister);
+        return new ResponseInfo<RsRegister>()
+                .setCode("00")
+                .setStatus("Success")
+                .setMessage("Register Success")
+                .setData(rsRegister);
     }
 
     public ResponseInfo<RsLogin> doLogin(RequestInfo<RqLogin> request) {
-        ResponseInfo<RsLogin> response = new ResponseInfo<RsLogin>()
-                .setCode("00")
-                .setStatus("Success");
-
         RqLogin rqLogin = request.getBody();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(rqLogin.getUsername(), rqLogin.getPassword()));
@@ -89,7 +92,11 @@ public class AuthUsecase {
                 .setAccessToken(accessToken)
                 .setRefreshToken(refreshToken);
 
-        return response.setMessage("Login Success").setData(rsLogin);
+        return new ResponseInfo<RsLogin>()
+                .setCode("00")
+                .setStatus("Success")
+                .setMessage("Login Success")
+                .setData(rsLogin);
     }
 
     private String generateRefreshToken(UserEntity user) {
