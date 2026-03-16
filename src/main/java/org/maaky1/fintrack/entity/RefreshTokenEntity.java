@@ -10,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,29 +21,24 @@ import lombok.experimental.Accessors;
 @Entity
 @Accessors(chain = true)
 @NoArgsConstructor
-@Table(name = "users")
-public class UserEntity {
+@Table(name = "refresh_tokens")
+public class RefreshTokenEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
-    private String userId;
+    @Column(unique = true)
+    private String token;
 
-    @Column(name = "name")
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private UserEntity user;
 
-    @Column(name = "username")
-    private String username;
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
 
-    @Column(name = "password")
-    private String password;
-
-    @Column(name = "email")
-    private String email;
-
-    @Column(name = "is_active")
-    private boolean isActive = true;
+    @Column(name = "is_revoked")
+    private boolean isRevoked = false;
 
     @CreationTimestamp
     @Column(name = "created_at")

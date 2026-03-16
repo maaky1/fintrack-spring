@@ -15,15 +15,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
-    public String getUsername(String UID) throws Exception {
-        UserEntity user = userRepository.findByUID(UID);
-        if (user == null) {
-            throw new Exception("UID not found: " + UID);
-        }
-
-        return user.getUsername();
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByUsername(username)
@@ -33,5 +24,35 @@ public class UserService implements UserDetailsService {
                 .password(user.getPassword())
                 .authorities("USER")
                 .build();
+    }
+
+    public UserEntity getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
+
+    public String getUsernameByUID(String UID) {
+        UserEntity user = userRepository.findByUserId(UID);
+        if (user == null)
+            return null;
+
+        return user.getUsername();
+    }
+
+    public boolean checkAvailUsername(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElse(null);
+
+        return user == null;
+    }
+
+    public boolean checkAvailEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElse(null);
+
+        return user == null;
+    }
+
+    public UserEntity saveUser(UserEntity userEntity) {
+        return userRepository.save(userEntity);
     }
 }

@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:8080/api
+@accessToken = eyJhbGciOiJIUzI1NiJ9.xxx
+@refreshToken = ca0124db-ea0d-42b1-b1dc-f05515b3ed6d
+
+### Register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "password": "password123"
+}
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "johndoe",
+    "password": "password123"
+}
+
+# ### Refresh Token
+# POST {{baseUrl}}/auth/refresh
+# Content-Type: application/json
+
+# {{refreshToken}}
+
+# ### Logout
+# POST {{baseUrl}}/auth/logout
+# Content-Type: application/json
+
+# {{refreshToken}}

@@ -8,12 +8,14 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
-    private AppProperties appProperties;
+    private final AppProperties appProperties;
 
     public String generateToken(String UID) {
         return Jwts.builder()
