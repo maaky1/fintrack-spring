@@ -8,6 +8,7 @@ import org.maaky1.fintrack.dto.ResponseInfo;
 import org.maaky1.fintrack.dto.request.RqLogin;
 import org.maaky1.fintrack.dto.request.RqRegister;
 import org.maaky1.fintrack.dto.response.RsLogin;
+import org.maaky1.fintrack.dto.response.RsRefreshToken;
 import org.maaky1.fintrack.dto.response.RsRegister;
 import org.maaky1.fintrack.entity.RefreshTokenEntity;
 import org.maaky1.fintrack.entity.UserEntity;
@@ -34,6 +35,7 @@ public class AuthUsecase {
     private final RefreshTokenService refreshTokenService;
 
     private static final String registerFuncCode = "11";
+    private static final String refreshFuncCode = "13";
 
     public ResponseInfo<RsRegister> registerAccount(RequestInfo<RqRegister> request) {
         RqRegister rqRegister = request.getBody();
@@ -99,10 +101,34 @@ public class AuthUsecase {
                 .setData(rsLogin);
     }
 
+    public ResponseInfo<RsRefreshToken> refreshToken(RequestInfo<Void> request) {
+        String refreshToken = request.getServletRequest().getHeader("X-Refresh-Token");
+        RefreshTokenEntity data = refreshTokenService.getByRefreRefreshToken(refreshToken);
+        if (data == null)
+            throw new AppException(HttpStatus.NOT_FOUND, Strings.concat(refreshFuncCode, "01"),
+                    "Refresh token not found");
+
+        if (data.isRevoked())
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(refreshFuncCode, "02"),
+                    "Refresh token is revoked");
+
+        if (data.getExpiresAt().isBefore(LocalDateTime.now()))
+            throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(refreshFuncCode, "03"),
+                    "Refresh token expired");
+
+        RsRefreshToken rsRefreshToken = new RsRefreshToken();
+
+        return new ResponseInfo<RsRefreshToken>()
+                .setCode("00")
+                .setStatus("Success")
+                .setMessage("Refresh Token Success")
+                .setData(rsRefreshToken);
+    }
+
     private String generateRefreshToken(UserEntity user) {
         String refreshToken = Strings.concat("RT-", UlidCreator.getMonotonicUlid().toString());
 
-        RefreshTokenEntity refreshTokenEntity = refreshTokenService.findByUser(user);
+        RefreshTokenEntity refreshTokenEntity = refreshTokenService.getByUser(user);
         if (refreshTokenEntity == null)
             refreshTokenEntity = new RefreshTokenEntity().setUser(user);
 

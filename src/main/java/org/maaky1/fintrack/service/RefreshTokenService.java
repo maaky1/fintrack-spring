@@ -16,7 +16,11 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshTokenEntity);
     }
 
-    public RefreshTokenEntity findByUser(UserEntity user) {
+    public RefreshTokenEntity getByUser(UserEntity user) {
         return refreshTokenRepository.findByUser(user).orElse(null);
+    }
+
+    public RefreshTokenEntity getByRefreRefreshToken(String refreshToken) {
+        return refreshTokenRepository.findByRefreRefreshToken(refreshToken).orElse(null);
     }
 }
