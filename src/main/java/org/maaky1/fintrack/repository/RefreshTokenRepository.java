@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity, Long> {
     Optional<RefreshTokenEntity> findByUser(UserEntity user);
 
-    Optional<RefreshTokenEntity> findByRefreRefreshToken(String refreshToken);
+    Optional<RefreshTokenEntity> findByToken(String refreshToken);
 }

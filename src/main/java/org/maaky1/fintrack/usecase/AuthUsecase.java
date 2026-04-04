@@ -1,7 +1,6 @@
 package org.maaky1.fintrack.usecase;
 
 import java.time.LocalDateTime;
-
 import org.apache.logging.log4j.util.Strings;
 import org.maaky1.fintrack.dto.RequestInfo;
 import org.maaky1.fintrack.dto.ResponseInfo;
@@ -22,9 +21,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.github.f4b6a3.ulid.UlidCreator;
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthUsecase {
@@ -103,7 +103,7 @@ public class AuthUsecase {
 
     public ResponseInfo<RsRefreshToken> refreshToken(RequestInfo<Void> request) {
         String refreshToken = request.getServletRequest().getHeader("X-Refresh-Token");
-        RefreshTokenEntity data = refreshTokenService.getByRefreRefreshToken(refreshToken);
+        RefreshTokenEntity data = refreshTokenService.getByRefreshToken(refreshToken);
         if (data == null)
             throw new AppException(HttpStatus.NOT_FOUND, Strings.concat(refreshFuncCode, "01"),
                     "Refresh token not found");
@@ -116,7 +116,9 @@ public class AuthUsecase {
             throw new AppException(HttpStatus.BAD_REQUEST, Strings.concat(refreshFuncCode, "03"),
                     "Refresh token expired");
 
-        RsRefreshToken rsRefreshToken = new RsRefreshToken();
+        String newAccessToken = jwtUtil.generateToken(data.getUser().getUserId());
+        RsRefreshToken rsRefreshToken = new RsRefreshToken()
+                .setAccessToken(newAccessToken);
 
         return new ResponseInfo<RsRefreshToken>()
                 .setCode("00")

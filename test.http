@@ -16,6 +16,8 @@ Content-Type: application/json
 ### Login
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
+# Authorization: Bearer {{accessToken}}
+# x-secret-api: abcsecret
 
 {
     "username": "johndoe",

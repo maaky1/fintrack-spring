@@ -20,7 +20,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByUser(user).orElse(null);
     }
 
-    public RefreshTokenEntity getByRefreRefreshToken(String refreshToken) {
-        return refreshTokenRepository.findByRefreRefreshToken(refreshToken).orElse(null);
+    public RefreshTokenEntity getByRefreshToken(String refreshToken) {
+        return refreshTokenRepository.findByToken(refreshToken).orElse(null);
     }
 }
