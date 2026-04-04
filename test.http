@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080/api
-@accessToken = eyJhbGciOiJIUzI1NiJ9.xxx
-@refreshToken = ca0124db-ea0d-42b1-b1dc-f05515b3ed6d
+@accessToken = eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmaW50cmFjayIsImlhdCI6MTc3NTI5NTQ2MywiZXhwIjoxNzc1Mjk2MzYzLCJzdWIiOiIwMUtOQlhOUkQxRTg4U0VWRldOWlFYRDBBUSJ9.vRrxuh-kRHuTzPQiP00j0wgL5_9s9Vck98ROqbxGLrI
+@refreshToken = RT-01KNBXNZV8B4NES4XP81SYXRRN
 
 ### Register
 POST {{baseUrl}}/auth/register
@@ -35,3 +35,8 @@ Content-Type: application/json
 # Content-Type: application/json
 
 # {{refreshToken}}
+
+### Test Dummy
+GET {{baseUrl}}/test
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
